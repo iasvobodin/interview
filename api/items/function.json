@@ -1,0 +1,37 @@
+{
+  "bindings": [
+    {
+      "authLevel": "anonymous",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "get",
+        "post"
+      ],
+      "route": "items"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "in",
+      "name": "dataIn",
+      "ConnectionStringSetting": "COSMOSDB",
+      "databaseName": "itnterview",
+      "collectionName": "test",
+      "sqlQuery": "SELECT * from c  ORDER BY c.id DESC OFFSET 0 LIMIT 10"
+    },
+    {
+      "type": "cosmosDB",
+      "direction": "out",
+      "name": "dataOut",
+      "ConnectionStringSetting": "COSMOSDB",
+      "databaseName": "itnterview",
+      "collectionName": "test"
+    }
+  ]
+}
