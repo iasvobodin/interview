@@ -12,9 +12,7 @@ module.exports = async function (context, req) {
    const container = database.container("tt");
    
   if (req.query.add) {
-    // context.log(req)
     context.bindings.dataOut = req.body
-    // dataOut = req.rawBody
     context.res = {
       status: 200,
     };
@@ -23,12 +21,11 @@ module.exports = async function (context, req) {
       //UPDATE ITEM
 
 if (req.query.update) {
-  const { id, type } = req.query;
-
-const { resource: updatedItem } = await container
-  .item(id, type)
-  .replace(req.body);
-return
+  const id = req.query.id;
+  const type = decodeURI(req.query.type)
+  await container.item(id, type).delete();
+  await container.items.create(req.body);
+  return
 }
 
 
@@ -36,7 +33,6 @@ return
     query: `SELECT * from c  ORDER BY c.index DESC OFFSET ${parseInt(req.query.offset)} LIMIT ${parseInt(req.query.lim)}`
   };
   
-  // read all items in the Items container
   const { resources: items } = await container.items
     .query(querySpec)
     .fetchAll();
