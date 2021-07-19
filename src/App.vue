@@ -16,12 +16,13 @@
       </li>
     </ul>
     <div class="pagination">
+      <button @click="selectPage(n)" v-for="n in pagesQty" :key="n">{{n}}</button>
       <select v-model="displayQty" name="" id="">
         <option v-for="n in [10, 20, 30]" :key="n">{{ n }}</option>
       </select>
     </div>
     <div class="add__button">
-      <button @click="modal = true">ADD NEW</button>
+      <button @click="addClearState">ADD NEW</button>
     </div>
   </div>
   <div v-if="modal" class="modal">
@@ -74,35 +75,51 @@
 </template>
 
 <script>
-import { reactive, toRefs } from "vue";
+import { reactive, toRefs, ref, watch } from "vue";
 import { useFetch } from "@/hooks/fetch";
 export default {
   setup() {
+    const displayQty = ref(10)
     const state = reactive({
       items: null,
       modal: false,
       maxIndex: null,
       pagesQty: null,
-      displayQty: 10,
+      currentPage: 1,
       updateItem: {},
     });
+    watch(displayQty, (newValue, oldValue) => {
+      getItems(0, newValue);
+      state.pagesQty = Math.floor(state.maxIndex/newValue) 
+    })
+
+const selectPage = (n)=> {
+  state.currentPage = n
+  getItems((n-1)*displayQty.value, displayQty.value);
+}
     const outsideClick = (e) => {
       const f = document.getElementById("addform"); // don't do it in vue!!! use costom directive
       !f.contains(e.target) && (state.modal = false);
     };
     //READ
-    const getItems = async () => {
-      // let url = new URL('/api/items', import.meta.env.DEV ? 'http://localhost:8080': 'https://thankful-pebble-012619610.azurestaticapps.net/');
-      // url.searchParams.set('limit', 'open');
-      const { request, response } = useFetch(`/api/items?lim=20`);
+    const getItems = async (offset, limit) => {
+      const { request, response } = useFetch(`/api/items?lim=${limit}&offset=${offset}`);
       await request();
       state.items = response;
-      state.maxIndex = response.value[0].index;
+      //FIRST INIT
+      !state.maxIndex && (state.maxIndex = response.value[0].index)
+      !state.pagesQty && (state.pagesQty = Math.floor(state.maxIndex/displayQty.value)+1)
     };
-    getItems();
+    getItems(0, displayQty.value);
     //CREATE
+    const addClearState = () => {
+      state.modal = true;
+      state.updateItem = {}
+      state.updateItem.state = 'add'
+    }
     const addItem = async () => {
-      const { request, response } = useFetch("/api/items?add=true", {
+      if (state.updateItem.state === 'add') {
+      const { request } = useFetch("/api/items?add=true", {
         method: "POST",
         body: JSON.stringify({
           index: ++state.maxIndex,
@@ -111,33 +128,54 @@ export default {
         }),
       });
       await request();
+     
+      }
+            if (state.updateItem.state === 'update') {
+              const id = state.updateItem.id 
+              const type = state.updateItem.type
+              debugger
+      const { request } = useFetch(`/api/items?update=true&type=${type}&id=${id}`, {
+        method: "POST",
+        body: JSON.stringify({
+        ...state.updateItem,
+        }),
+      });
+      await request();
+     
+      }
       //CLEAR STATE
       state.modal = false;
       state.updateItem = {};
       //UPDATE LIST
-      getItems();
+      getItems((state.currentPage-1)*displayQty.value, displayQty.value);
     };
     //UPDATE
     const changeItem = (i) => {
       state.modal = true;
       state.updateItem = state.items[i];
+      state.updateItem.state = 'update'
     };
-    const updateItem = async () => {
-      const { request, response } = useFetch("/api/items", {
+    const updateItemDB = async (id,type) => {
+      const { request } = useFetch(`/api/items?id=${id}&type=${type}`, {
         method: "POST",
-        // body: {...}
+        body: JSON.stringify({...state.updateItem})
       });
       await request();
     };
     //DELETE
     const delItem = async () => {
-      const { request, response } = useFetch("/api/items", {
+      const { request, response } = useFetch("/api/items?del", {
         method: "POST",
         // body: {...}
       });
       await request();
     };
     return {
+      selectPage,
+      addClearState,
+      updateItemDB,
+      getItems,
+      displayQty,
       outsideClick,
       addItem,
       changeItem,
@@ -276,12 +314,7 @@ h1 {
   padding: 1vh;
   cursor: pointer;
 }
-input[type="submit"] {
-  /* background-image: url("/img/save.svg"); */
-  border: none;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-}
+
 /* .modal__close__icon {
 } */
 @media (max-width: 450px) {

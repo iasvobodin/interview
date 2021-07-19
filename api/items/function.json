@@ -23,7 +23,7 @@
       "ConnectionStringSetting": "COSMOSDB",
       "databaseName": "itnterview",
       "collectionName": "tt",
-      "sqlQuery": "SELECT * from c  ORDER BY c.index DESC OFFSET 2 LIMIT 5"
+      "sqlQuery": "SELECT * from c"
     },
     {
       "type": "cosmosDB",
