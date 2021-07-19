@@ -22,8 +22,8 @@
       "name": "dataIn",
       "ConnectionStringSetting": "COSMOSDB",
       "databaseName": "itnterview",
-      "collectionName": "test",
-      "sqlQuery": "SELECT * from c  ORDER BY c.id DESC OFFSET 0 LIMIT 10"
+      "collectionName": "tt",
+      "sqlQuery": "SELECT * from c  ORDER BY c.index DESC OFFSET 2 LIMIT 5"
     },
     {
       "type": "cosmosDB",
@@ -31,7 +31,7 @@
       "name": "dataOut",
       "ConnectionStringSetting": "COSMOSDB",
       "databaseName": "itnterview",
-      "collectionName": "test"
+      "collectionName": "tt"
     }
   ]
 }
