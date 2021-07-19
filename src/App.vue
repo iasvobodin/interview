@@ -16,7 +16,17 @@
       </li>
     </ul>
     <div class="pagination">
-      <button @click="selectPage(n)" v-for="n in pagesQty" :key="n">{{n}}</button>
+      <span
+        :class="{ exzact__pagination: currentPage === n }"
+        class="pagination__numbers"
+        @click="selectPage(n)"
+        v-for="n in pagesQty"
+        :key="n"
+      >
+        {{ n }}
+      </span>
+
+      <p>Отображать по</p>
       <select v-model="displayQty" name="" id="">
         <option v-for="n in [10, 20, 30]" :key="n">{{ n }}</option>
       </select>
@@ -35,13 +45,13 @@
       >
         <div class="input__holder">
           <h4>Названиe</h4>
-          <input required v-model="updateItem.name" type="text" />
+          <input required v-model="vmodelItem.name" type="text" />
         </div>
         <div class="input__holder">
           <h4>Описание</h4>
           <textarea
             required
-            v-model="updateItem.desc"
+            v-model="vmodelItem.desc"
             name=""
             cols="30"
             rows="5"
@@ -49,17 +59,17 @@
         </div>
         <div class="input__holder">
           <h4>Цена</h4>
-          <input required v-model="updateItem.price" type="number" />
+          <input required v-model="vmodelItem.price" type="number" />
         </div>
         <div class="input__holder">
           <h4>Тип</h4>
-          <select required v-model="updateItem.type" name="">
+          <select required v-model="vmodelItem.type" name="">
             <option value="Комерческое">Комерческое</option>
             <option value="Жилое">Жилое</option>
           </select>
         </div>
 
-        <input value="ADD" type="submit" />
+        <input :value="vmodelItem.state" type="submit" />
         <div class="modal__close">
           <img
             class="modal__close__icon"
@@ -79,86 +89,96 @@ import { reactive, toRefs, ref, watch } from "vue";
 import { useFetch } from "@/hooks/fetch";
 export default {
   setup() {
-    const displayQty = ref(10)
+    const displayQty = ref(10);
     const state = reactive({
       items: null,
       modal: false,
       maxIndex: null,
       pagesQty: null,
-      currentPage: 1,
       updateItem: {},
+      currentPage: 1,
+      vmodelItem: {},
     });
     watch(displayQty, (newValue, oldValue) => {
       getItems(0, newValue);
-      state.pagesQty = Math.floor(state.maxIndex/newValue) 
-    })
+      state.pagesQty = Math.floor(state.maxIndex / newValue) + 1;
+    });
 
-const selectPage = (n)=> {
-  state.currentPage = n
-  getItems((n-1)*displayQty.value, displayQty.value);
-}
+    const selectPage = (n) => {
+      state.currentPage = n;
+      getItems((n - 1) * displayQty.value, displayQty.value);
+    };
     const outsideClick = (e) => {
       const f = document.getElementById("addform"); // don't do it in vue!!! use costom directive
       !f.contains(e.target) && (state.modal = false);
     };
     //READ
     const getItems = async (offset, limit) => {
-      const { request, response } = useFetch(`/api/items?lim=${limit}&offset=${offset}`);
+      const { request, response } = useFetch(
+        `/api/items?lim=${limit}&offset=${offset}`
+      );
       await request();
       state.items = response;
       //FIRST INIT
-      !state.maxIndex && (state.maxIndex = response.value[0].index)
-      !state.pagesQty && (state.pagesQty = Math.floor(state.maxIndex/displayQty.value)+1)
+      !state.maxIndex && (state.maxIndex = response.value[0].index);
+      !state.pagesQty &&
+        (state.pagesQty = Math.floor(state.maxIndex / displayQty.value) + 1);
     };
     getItems(0, displayQty.value);
     //CREATE
     const addClearState = () => {
       state.modal = true;
-      state.updateItem = {}
-      state.updateItem.state = 'add'
-    }
+      state.vmodelItem = {};
+      state.vmodelItem.state = "add";
+    };
     const addItem = async () => {
-      if (state.updateItem.state === 'add') {
-      const { request } = useFetch("/api/items?add=true", {
-        method: "POST",
-        body: JSON.stringify({
-          index: ++state.maxIndex,
-          type: state.updateItem["Тип"],
-          ...state.updateItem,
-        }),
-      });
-      await request();
-     
+      if (state.vmodelItem.state === "add") {
+        const { request } = useFetch("/api/items?add=true", {
+          method: "POST",
+          body: JSON.stringify({
+            index: ++state.maxIndex,
+            type: state.vmodelItem["Тип"],
+            ...state.vmodelItem,
+          }),
+        });
+        await request();
       }
-            if (state.updateItem.state === 'update') {
-              const id = state.updateItem.id 
-              const type = state.updateItem.type
-              debugger
-      const { request } = useFetch(`/api/items?update=true&type=${type}&id=${id}`, {
-        method: "POST",
-        body: JSON.stringify({
-        ...state.updateItem,
-        }),
-      });
-      await request();
-     
+      if (state.vmodelItem.state === "update") {
+        // const id = state.vmodelItem.id;
+        // const type = state.vmodelItem.type;
+        const { id, type } = state.updateItem;
+        debugger;
+        const { request } = useFetch(
+          `/api/items?update=true&type=${type}&id=${id}`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              ...state.vmodelItem,
+            }),
+          }
+        );
+        await request();
       }
       //CLEAR STATE
       state.modal = false;
-      state.updateItem = {};
+      state.vmodelItem = {};
       //UPDATE LIST
-      getItems((state.currentPage-1)*displayQty.value, displayQty.value);
+      getItems((state.currentPage - 1) * displayQty.value, displayQty.value);
     };
     //UPDATE
     const changeItem = (i) => {
       state.modal = true;
-      state.updateItem = state.items[i];
-      state.updateItem.state = 'update'
+      state.vmodelItem = state.items[i];
+      state.vmodelItem.state = "update";
+      state.updateItem.id = state.items[i].id;
+      state.updateItem.type = state.items[i].type;
     };
-    const updateItemDB = async (id,type) => {
+    const updateItemDB = async (id, type) => {
       const { request } = useFetch(`/api/items?id=${id}&type=${type}`, {
         method: "POST",
-        body: JSON.stringify({...state.updateItem})
+        body: JSON.stringify({
+          ...state.vmodelItem,
+        }),
       });
       await request();
     };
@@ -327,5 +347,22 @@ h1 {
     grid-template-rows: 1fr 1fr; */
     padding-bottom: 15px;
   }
+}
+.pagination__numbers {
+  display: inline-block;
+  border: 1px solid black;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 5px;
+  margin: 5px;
+  cursor: pointer;
+}
+.pagination__numbers:hover {
+  border: 1px solid orange;
+}
+.exzact__pagination {
+  background-color: orange;
 }
 </style>
