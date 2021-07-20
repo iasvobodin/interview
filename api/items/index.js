@@ -10,7 +10,29 @@ module.exports = async function (context, req) {
  
    const database = client.database('itnterview');
    const container = database.container("tt");
-   
+
+   if (req.query.count) {
+     let  querySpec;
+    if(req.query.count === 'all'){
+    querySpec = {
+      query: `SELECT COUNT(1) FROM c`// where c.type = ${req.query.count}`
+    };
+  } else {
+    querySpec = {
+      query: `SELECT COUNT(1) FROM c where c.type = '${req.query.count}'`
+    };
+  }
+    const { resources: count } = await container.items
+    .query(querySpec)
+    .fetchAll();
+  
+    context.res = {
+      body: count[0].$1,
+      status: 200,
+    };
+      return
+  }
+
   if (req.query.add) {
     context.bindings.dataOut = req.body
     context.res = {
@@ -21,17 +43,31 @@ module.exports = async function (context, req) {
       //UPDATE ITEM
 
 if (req.query.update) {
-  const id = req.query.id;
-  const type = decodeURI(req.query.type)
+  const {id, type} = req.query;
   await container.item(id, type).delete();
   await container.items.create(req.body);
   return
 }
+      //DELETE ITEM
 
-
-  const querySpec = {
-    query: `SELECT * from c  ORDER BY c.index DESC OFFSET ${parseInt(req.query.offset)} LIMIT ${parseInt(req.query.lim)}`
+if (req.query.delete) {
+  const {id, type} = req.query;
+  // const type = decodeURI(req.query.type)
+  await container.item(id, type).delete();
+  // await container.items.create(req.body);
+  return
+}
+let querySpec;
+if (req.query.itemstype === 'all') {
+  querySpec = {
+    query: `SELECT * from c ORDER BY c.index DESC OFFSET ${parseInt(req.query.offset)} LIMIT ${parseInt(req.query.lim)}`
   };
+} else {
+  querySpec = {
+    query: `SELECT * from c WHERE c.type = '${req.query.itemstype}' ORDER BY c.index DESC OFFSET ${parseInt(req.query.offset)} LIMIT ${parseInt(req.query.lim)}`
+  };
+}
+
   
   const { resources: items } = await container.items
     .query(querySpec)
