@@ -144,11 +144,8 @@ export default {
     });
     watch(filterType, (newValue, oldValue) => {
       getCount();
-      getItems(
-        (state.currentPage - 1) * displayQty.value,
-        displayQty.value,
-        filterType.value
-      );
+      state.currentPage = 1;
+      getItems(0, displayQty.value, filterType.value);
     });
 
     const selectPage = (n) => {
