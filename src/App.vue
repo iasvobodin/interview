@@ -16,6 +16,8 @@
         <div>index: {{ item.index }}</div>
       </li>
     </ul>
+    <div v-if="loading" class="preloader">
+    </div>
     <div class="pagination">
       <div class="numbering">
         <span :class="{ exzact__pagination: currentPage === n }" class="pagination__numbers" @click="selectPage(n)"
@@ -85,6 +87,7 @@ export default {
       updateItem: {},
       currentPage: 1,
       vmodelItem: {},
+      loading: false
     });
     watch(displayQty, (newValue, oldValue) => {
       getItems(0, newValue, filterType.value);
@@ -110,7 +113,7 @@ export default {
     };
     //READ
     const getCount = async ()=>{
-      const { request, response} = useFetch(
+      const { request, response, loading} = useFetch(
         `/api/items?count=${filterType.value}`
       );
       await request();
@@ -119,9 +122,10 @@ export default {
     } 
     
     const getItems = async (offset, limit, fType) => {
-      const { request, response } = useFetch(
+      const { request, response , loading} = useFetch(
         `/api/items?lim=${limit}&offset=${offset}&itemstype=${fType}`
       );
+      state.loading = loading;
       await request();
       state.items = response;
     };
@@ -147,7 +151,7 @@ export default {
     };
     const addItem = async () => {
       if (state.vmodelItem.state === "Add") {
-        const { request } = useFetch("/api/items?add=true", {
+        const { request , loading} = useFetch("/api/items?add=true", {
           method: "POST",
           body: JSON.stringify({
             index: ++state.maxIndex,
@@ -159,7 +163,7 @@ export default {
       }
       if (state.vmodelItem.state === "Update") {
         const { id, type } = state.updateItem;
-        const { request } = useFetch(
+        const { request , loading} = useFetch(
           `/api/items?update=true&type=${type}&id=${id}`,
           {
             method: "POST",
@@ -179,7 +183,7 @@ export default {
     //UPDATE
 
     const updateItemDB = async (id, type) => {
-      const { request } = useFetch(`/api/items?id=${id}&type=${type}`, {
+      const { request , loading} = useFetch(`/api/items?id=${id}&type=${type}`, {
         method: "POST",
         body: JSON.stringify({
           ...state.vmodelItem,
@@ -190,7 +194,8 @@ export default {
     //DELETE
     const delItem = async () => {
       const { id, type } = state.updateItem;
-      const { request} = useFetch(`/api/items?delete=true&id=${id}&type=${type}`);
+      const { request, loading} = useFetch(`/api/items?delete=true&id=${id}&type=${type}`); 
+      state.loading = loading;
       await request();
        state.modal = false;
        state.vmodelItem = {};
@@ -410,5 +415,13 @@ width: 100%;
   bottom: 20px;
   right: 20px;
   
+}
+.preloader{
+  height: 100vh;
+  width: 100%;
+  background-color: rgba(255, 166, 0, 0.226);
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 </style>

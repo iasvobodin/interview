@@ -3,8 +3,10 @@ import {ref} from 'vue'
 
 export function useFetch(url, options) {
   const response = ref()
+  const loading = ref(false)
 
   const request = async () => {
+    loading.value = true;
     try {
       const res = await fetch(url, options)
       if (res.ok) {
@@ -13,9 +15,9 @@ export function useFetch(url, options) {
     } catch (error) {
       console.log(error);
     } finally {
-      // store.commit("changeLoader", false)
+      loading.value = false;
     }
   }
 
-  return {response, request}
+  return {response, request, loading}
 }
