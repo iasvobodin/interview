@@ -1,7 +1,7 @@
 <template>
   <div class="items">
     <div class="header">
-      <h1>Недвижимость</h1>
+      <h1>Title</h1>
       <div class="filter">
         <p>Фильтр по типу</p>
         <select v-model="filterType" name="" id="">
@@ -35,6 +35,8 @@
       </div>
     </div>
     <div class="pagination">
+      <div class="numbering__holder">
+      <img style="transform: rotate(180deg);" class="pagination__arrow" src="/img/next.svg" alt="next">
       <div class="numbering">
         <span
           :class="{ exzact__pagination: currentPage === n }"
@@ -45,6 +47,8 @@
         >
           {{ n }}
         </span>
+      </div>
+      <img  class="pagination__arrow" src="/img/next.svg" alt="next">
       </div>
       <div class="view__select">
         <p>Отображать по</p>
@@ -139,7 +143,7 @@ export default {
     });
     watch(displayQty, (newValue, oldValue) => {
       getItems(0, newValue, filterType.value);
-      state.pagesQty = Math.floor(state.maxIndex / newValue) + 1;
+      state.pagesQty = state.maxIndex % newValue > 0 ? (state.maxIndex - state.maxIndex % newValue)/ newValue +1 : state.maxIndex / newValue//  = Math.floor(state.maxIndex / newValue) + 1;
       state.currentPage = 1;
     });
     watch(filterType, (newValue, oldValue) => {
@@ -166,7 +170,8 @@ export default {
       await request();
       state.maxIndex = response.value;
       !state.addIndex && (state.addIndex = response.value);
-      state.pagesQty = Math.floor(state.maxIndex / displayQty.value) + 1;
+      // state.pagesQty = Math.floor(state.maxIndex / displayQty.value) + 1;
+      state.pagesQty = state.maxIndex % displayQty.value > 0 ? (state.maxIndex - state.maxIndex % displayQty.value)/ displayQty.value +1 : state.maxIndex / displayQty.value
     };
 
     const getItems = async (offset, limit, fType) => {
@@ -207,6 +212,7 @@ export default {
             ...state.vmodelItem,
           }),
         });
+        state.loading = loading;
         await request();
       }
       if (state.vmodelItem.state === "Update") {
@@ -220,6 +226,7 @@ export default {
             }),
           }
         );
+        state.loading = loading;
         await request();
       }
       //CLEAR STATE
@@ -357,6 +364,9 @@ h1 {
     scroll-behavior: auto;
   }
 }
+.items{
+  height: 100%;
+}
 .items__holder {
   margin-bottom: 15vh;
   /* max-height: 80vh;
@@ -464,15 +474,33 @@ h1 {
   background-color: white;
 }
 .pagination__numbers {
-  display: inline-block;
+  display: block;
   border: 1px solid black;
   width: 30px;
   height: 30px;
   line-height: 30px;
   text-align: center;
   border-radius: 5px;
-  margin: 5px;
+  /* margin: 5px; */
   cursor: pointer;
+}
+.numbering__holder{
+  display: grid;
+  column-gap: 1vw;
+  justify-content: center;
+  grid-template-columns: 30px 170px 30px;
+}
+.numbering{
+/* display: flex; */
+display: grid;
+grid-auto-flow: column;
+grid-auto-columns: 30px;
+column-gap: 5px;
+width: 170px;
+overflow: hidden;
+left: 50%;
+position: relative;
+transform: translateX(-50%);
 }
 .pagination__numbers:hover {
   border: 1px solid var(--border__color);
@@ -480,13 +508,18 @@ h1 {
 .exzact__pagination {
   background-color: var(--border__color);
 }
+.pagination__arrow{
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+}
 .add__button {
   position: fixed;
   bottom: 20px;
   right: 20px;
 }
 .preloader {
-  height: 100vh;
+  height: inherit;
   width: 100%;
   display: grid;
   background-color: rgba(255, 255, 255, 0.8);
