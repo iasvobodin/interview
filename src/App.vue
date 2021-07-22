@@ -1,7 +1,7 @@
 <template>
   <main class="items">
     <section class="header">
-      <h1>Title</h1>
+      <h1 class="header__title">Title</h1>
       <div class="filter">
         <p>Фильтр по типу</p>
         <select v-model="filterType" name="" id="">
@@ -428,7 +428,9 @@ export default {
   display: grid;
   grid-auto-flow: column;
 }
-
+.header__title {
+  line-height: 60px;
+}
 .items {
   height: 100%;
 }
@@ -627,8 +629,10 @@ export default {
 }
 
 .filter {
+  height: 60px;
   position: absolute;
-  right: 5px;
+  right: 10px;
+  top: 5px;
 }
 
 /* TRANSITIONS */
