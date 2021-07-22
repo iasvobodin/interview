@@ -22,7 +22,7 @@
       "name": "dataIn",
       "ConnectionStringSetting": "COSMOSDB",
       "databaseName": "itnterview",
-      "collectionName": "tt",
+      "collectionName": "tetsttask",
       "sqlQuery": "SELECT * from c"
     },
     {
@@ -31,7 +31,7 @@
       "name": "dataOut",
       "ConnectionStringSetting": "COSMOSDB",
       "databaseName": "itnterview",
-      "collectionName": "tt"
+      "collectionName": "tetsttask"
     }
   ]
 }

@@ -9,7 +9,7 @@ module.exports = async function (context, req) {
    const client = new CosmosClient({ endpoint, key });
  
    const database = client.database('itnterview');
-   const container = database.container("tt");
+   const container = database.container("tetsttask");
 
    if (req.query.count) {
      let  querySpec;
