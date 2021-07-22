@@ -1,5 +1,5 @@
 <template>
-  <div class="items">
+  <main class="items">
     <section class="header">
       <h1>Title</h1>
       <div class="filter">
@@ -11,16 +11,34 @@
         </select>
       </div>
     </section>
-    <ul role="list" class="items__holder">
-      <li @click="changeItem(index)" :class="{ blured: loading }" class="list__item" v-for="(item, index) in items"
-        :key="item.id">
-        <div>Название: {{ item.name }}</div>
-        <div>Описание: {{ item.desc }}</div>
-        <div>Цена: ${{ item.price }}</div>
-        <div>Тип: {{ item.type }}</div>
-        <!-- <div>index: {{ item.index }}</div> -->
+    <section class="items__holder">
+      <div 
+        @click="changeItem(index)" 
+        :class="{ blured: loading }" 
+        class="list__item" 
+        v-for="(item, index) in items"
+        :key="item.id"
+        >
+        <div><b>Название: </b>{{ item.name }}</div>
+        <div><b>Описание: </b>{{ item.desc }}</div>
+        <div><b>Цена: $ </b>{{ item.price }}</div>
+        <div><b>Тип: </b>{{ item.type }}</div>
+      </div>
+    </section>
+    <!-- <ul role="list" class="items__holder">
+      <li 
+        @click="changeItem(index)" 
+        :class="{ blured: loading }" 
+        class="list__item" 
+        v-for="(item, index) in items"
+        :key="item.id"
+      >
+        <div><b>Название: </b>{{ item.name }}</div>
+        <div><b>Описание: </b>{{ item.desc }}</div>
+        <div><b>Цена: $ </b>{{ item.price }}</div>
+        <div><b>Тип: </b>{{ item.type }}</div>
       </li>
-    </ul>
+    </ul> -->
     <transition name="form">
       <div v-if="loading" class="preloader">
         <pre-loader />
@@ -48,7 +66,7 @@
         <img @click="addClearState" src="/img/add.svg" alt="add">
       </div>
     </section>
-  </div>
+  </main>
   <transition name="form">
     <div v-if="modal" class="modal">
       <div @mousedown="outsideClick($event)" class="modal__additem">
@@ -109,7 +127,7 @@ export default {
       pagesQty: 5,
       currentPage: 1,
       pageViewQty: null,
-      
+
       //DATA
       items: 10,
       updateItem: {},
@@ -118,12 +136,14 @@ export default {
       modal: false,
       loading: false,
     });
+
     watch(displayQty, (newValue) => {
       getItems(0, newValue, filterType.value);
       state.pagesQty = Math.ceil(state.maxIndex / newValue);
-      state.pageViewQty = Math.ceil(state.pagesQty/5)-1
+      state.pageViewQty = Math.ceil(state.pagesQty / 5) - 1
       state.currentPage = 1;
     });
+
     watch(filterType, (newValue) => {
       getCount();
       state.currentPage = 1;
@@ -131,67 +151,30 @@ export default {
     });
 
     watch(currentPageView, (newValue, oldValue) => {
-      let direction = newValue>oldValue ? 'normal': 'reverse'
+      let direction = newValue > oldValue ? 'normal' : 'reverse'
 
-     if (newValue<0) {
-       currentPageView.value = 0
-     }
-     if (newValue>state.pageViewQty) {
-       currentPageView.value = state.pageViewQty
-     }
-     const pag = anime({
-       targets: ".pagination__numbers",
-       translateX: -175 * currentPageView.value ,
-       easing: 'linear', 
-       autoplay: false,
-       duration: 250,
-       delay: anime.stagger(30, {direction})
-     })
-     pag.play()
-    //  console.log(currentPageView.value);
-    });
-    const selectPage = (n) => {
-      state.currentPage = n;
-      getItems((n - 1) * displayQty.value, displayQty.value, filterType.value);
-    };
-    
-
-    const outsideClick = (e) => {
-      const f = document.getElementById("addform"); // don't do it in vue!!! use costom directive
-      if (!f.contains(e.target)) {
-        state.modal = false;
+      if (newValue < 0) {
+        currentPageView.value = 0
       }
-    };
-    //READ
-    const getCount = async () => {
-      const { request, response, loading } = useFetch(
-        `/api/items?count=${filterType.value}`
-      );
-      await request();
-      state.maxIndex = response.value;
-      !state.addIndex && (state.addIndex = response.value - 1);
-      state.pagesQty = Math.ceil(state.maxIndex / displayQty.value);
-      state.pageViewQty = Math.ceil(state.pagesQty/5)-1
-      // state.pagesQty = state.maxIndex % displayQty.value > 0 ? (state.maxIndex - state.maxIndex % displayQty.value) / displayQty.value + 1 : state.maxIndex / displayQty.value
-    };
-    const getItems = async (offset, limit, fType) => {
-      const { request, response, loading } = useFetch(
-        `/api/items?lim=${limit}&offset=${offset}&itemstype=${fType}`
-      );
-      state.loading = loading;
-      await request();
-      state.items = response;
-    };
-    // INIT
-    getCount();
-    getItems(0, displayQty.value, filterType.value);
+      if (newValue > state.pageViewQty) {
+        currentPageView.value = state.pageViewQty
+      }
 
-    //CREATE
-    const addClearState = () => {
-      state.modal = true;
-      state.vmodelItem = {};
-      state.vmodelItem.state = "Add";
-    };
+      const pag = anime({
+        targets: ".pagination__numbers",
+        translateX: -175 * currentPageView.value,
+        easing: 'linear',
+        autoplay: false,
+        duration: 250,
+        delay: anime.stagger(30, {
+          direction
+        })
+      })
+      pag.play()
+    });
+
+    //DOOM EVENTS
+
     const changeItem = (i) => {
       state.modal = true;
       //COPY OBJECT WITH SAVE STATE MABY IT HAS A BEST WAY
@@ -202,10 +185,63 @@ export default {
       state.updateItem.id = state.items[i].id;
       state.updateItem.type = state.items[i].type;
     };
+
+    const selectPage = (n) => {
+      state.currentPage = n;
+      getItems((n - 1) * displayQty.value, displayQty.value, filterType.value);
+    };
+
+    const outsideClick = (e) => {
+      const f = document.getElementById("addform"); // sorry for that, on future need to use costom directive
+      if (!f.contains(e.target)) {
+        state.modal = false;
+      }
+    };
+
+    const addClearState = () => {
+      state.modal = true;
+      state.vmodelItem = {};
+      state.vmodelItem.state = "Add";
+    };
+    //FETCH
+
+    //GET QTY ELEMENTS
+    const getCount = async () => {
+      const {
+        request,
+        response,
+        loading
+      } = useFetch(
+        `/api/items?count=${filterType.value}`
+      );
+      await request();
+      state.maxIndex = response.value;
+      !state.addIndex && (state.addIndex = response.value - 1);
+      state.pagesQty = Math.ceil(state.maxIndex / displayQty.value);
+      state.pageViewQty = Math.ceil(state.pagesQty / 5) - 1 //index start from 0
+    };
+    //READ ALL
+    const getItems = async (offset, limit, fType) => {
+      const {
+        request,
+        response,
+        loading
+      } = useFetch(
+        `/api/items?lim=${limit}&offset=${offset}&itemstype=${fType}`
+      );
+      state.loading = loading;
+      await request();
+      state.items = response;
+    };
+
+    // CREATE UPDATE
     const addItem = async () => {
       state.modal = false;
       if (state.vmodelItem.state === "Add") {
-        const { request, loading } = useFetch("/api/items?add=true", {
+        const {
+          request,
+          loading
+        } = useFetch("/api/items?add=true", {
           method: "POST",
           body: JSON.stringify({
             index: ++state.addIndex,
@@ -216,10 +252,15 @@ export default {
         await request();
       }
       if (state.vmodelItem.state === "Update") {
-        const { id, type } = state.updateItem;
-        const { request, loading } = useFetch(
-          `/api/items?update=true&type=${type}&id=${id}`,
-          {
+        const {
+          id,
+          type
+        } = state.updateItem;
+        const {
+          request,
+          loading
+        } = useFetch(
+          `/api/items?update=true&type=${type}&id=${id}`, {
             method: "POST",
             body: JSON.stringify({
               ...state.vmodelItem,
@@ -230,7 +271,6 @@ export default {
         await request();
       }
       //CLEAR STATE
-      
       state.vmodelItem = {};
       //UPDATE LIST
       getItems(
@@ -242,8 +282,14 @@ export default {
     //DELETE
     const delItem = async () => {
       state.modal = false;
-      const { id, type } = state.updateItem;
-      const { request, loading } = useFetch(
+      const {
+        id,
+        type
+      } = state.updateItem;
+      const {
+        request,
+        loading
+      } = useFetch(
         `/api/items?delete=true&id=${id}&type=${type}`
       );
       state.loading = loading;
@@ -255,6 +301,10 @@ export default {
         filterType.value
       );
     };
+    // INIT
+    getCount();
+    getItems(0, displayQty.value, filterType.value);
+
     return {
       currentPageView,
       selectPage,
@@ -275,103 +325,129 @@ export default {
 <style lang="css">
 :root {
   --border__color: orange;
+  --card__hover:repeating-linear-gradient(135deg, rgba(255,168,0, 0.09) 0px, rgba(255,168,0, 0.09) 1px,transparent 1px, transparent 11px),repeating-linear-gradient(45deg, rgba(255,168,0, 0.09) 0px, rgba(255,168,0, 0.09) 1px,transparent 1px, transparent 11px),linear-gradient(90deg, hsl(183,0%,100%),hsl(183,0%,100%));
   --card__image: repeating-linear-gradient(135deg, hsla(35,0%,71%,0.09) 0px, hsla(35,0%,71%,0.09) 1px,transparent 1px, transparent 11px),repeating-linear-gradient(45deg, hsla(35,0%,71%,0.09) 0px, hsla(35,0%,71%,0.09) 1px,transparent 1px, transparent 11px),linear-gradient(90deg, hsl(183,0%,100%),hsl(183,0%,100%));
   --bg__color: rgb(128, 225, 255);
   --bg__image: linear-gradient(135deg, rgba(244, 244, 244,0.07) 0%, rgba(244, 244, 244,0.07) 12.5%,rgba(211, 211, 211,0.07) 12.5%, rgba(211, 211, 211,0.07) 25%,rgba(178, 178, 178,0.07) 25%, rgba(178, 178, 178,0.07) 37.5%,rgba(145, 145, 145,0.07) 37.5%, rgba(145, 145, 145,0.07) 50%,rgba(113, 113, 113,0.07) 50%, rgba(113, 113, 113,0.07) 62.5%,rgba(80, 80, 80,0.07) 62.5%, rgba(80, 80, 80,0.07) 75%,rgba(47, 47, 47,0.07) 75%, rgba(47, 47, 47,0.07) 87.5%,rgba(14, 14, 14,0.07) 87.5%, rgba(14, 14, 14,0.07) 100%),linear-gradient(45deg, rgba(236, 236, 236,0.07) 0%, rgba(236, 236, 236,0.07) 12.5%,rgba(210, 210, 210,0.07) 12.5%, rgba(210, 210, 210,0.07) 25%,rgba(183, 183, 183,0.07) 25%, rgba(183, 183, 183,0.07) 37.5%,rgba(157, 157, 157,0.07) 37.5%, rgba(157, 157, 157,0.07) 50%,rgba(130, 130, 130,0.07) 50%, rgba(130, 130, 130,0.07) 62.5%,rgba(104, 104, 104,0.07) 62.5%, rgba(104, 104, 104,0.07) 75%,rgba(77, 77, 77,0.07) 75%, rgba(77, 77, 77,0.07) 87.5%,rgba(51, 51, 51,0.07) 87.5%, rgba(51, 51, 51,0.07) 100%),linear-gradient(90deg, #ffffff,#ffffff);
   /* --bg__image: linear-gradient(112.5deg, rgb(214, 214, 214) 0%, rgb(214, 214, 214) 10%,rgb(195, 195, 195) 10%, rgb(195, 195, 195) 53%,rgb(176, 176, 176) 53%, rgb(176, 176, 176) 55%,rgb(157, 157, 157) 55%, rgb(157, 157, 157) 60%,rgb(137, 137, 137) 60%, rgb(137, 137, 137) 88%,rgb(118, 118, 118) 88%, rgb(118, 118, 118) 91%,rgb(99, 99, 99) 91%, rgb(99, 99, 99) 100%),linear-gradient(157.5deg, rgb(214, 214, 214) 0%, rgb(214, 214, 214) 10%,rgb(195, 195, 195) 10%, rgb(195, 195, 195) 53%,rgb(176, 176, 176) 53%, rgb(176, 176, 176) 55%,rgb(157, 157, 157) 55%, rgb(157, 157, 157) 60%,rgb(137, 137, 137) 60%, rgb(137, 137, 137) 88%,rgb(118, 118, 118) 88%, rgb(118, 118, 118) 91%,rgb(99, 99, 99) 91%, rgb(99, 99, 99) 100%),linear-gradient(135deg, rgb(214, 214, 214) 0%, rgb(214, 214, 214) 10%,rgb(195, 195, 195) 10%, rgb(195, 195, 195) 53%,rgb(176, 176, 176) 53%, rgb(176, 176, 176) 55%,rgb(157, 157, 157) 55%, rgb(157, 157, 157) 60%,rgb(137, 137, 137) 60%, rgb(137, 137, 137) 88%,rgb(118, 118, 118) 88%, rgb(118, 118, 118) 91%,rgb(99, 99, 99) 91%, rgb(99, 99, 99) 100%),linear-gradient(90deg, rgb(195, 195, 195),rgb(228, 228, 228)); background-blend-mode:overlay,overlay,overlay,normal; */
 }
 
-/* Box sizing rules */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
 
-/* Remove default margin */
-body,
-h1,
-h2,
-h3,
-h4,
-p,
-figure,
-blockquote,
-dl,
-dd {
-  margin: 0;
-}
 
-/* Remove list styles on ul, ol elements with a list role, which suggests default styling will be removed */
-ul[role="list"],
-ol[role="list"] {
-  list-style: none;
-  padding: 0;
-  list-style-type: none;
+.header {
+  z-index: 2;
+  position: sticky;
+  min-height: 60px;
+  /* background-color: rgb(255, 255, 255); */
+  /* box-shadow: 0px 5px 5px 0px #0000003b; */
+  border-bottom: 1px solid var(--border__color);
+  top: 0px;
+  background-image: var(--bg__image);
+  padding: 5px;
+  /* border-radius: 5px; */
+  display: grid;
+  grid-auto-flow: column;
 }
-
-/* Set core root defaults */
-html:focus-within {
-  scroll-behavior: smooth;
-}
-
-/* Set core body defaults */
-body {
-  min-height: 100vh;
-  text-rendering: optimizeSpeed;
-  line-height: 1.5;
-  margin: 0;
-}
-
-/* A elements that don't have a class get default styles */
-a:not([class]) {
-  text-decoration-skip-ink: auto;
-}
-
-/* Make images easier to work with */
-img,
-picture {
-  max-width: 100%;
-  display: block;
-}
-
-/* Inherit fonts for inputs and buttons */
-input,
-button,
-textarea,
-select {
-  font: inherit;
-}
-
-select {
-  min-height: 30px;
-  min-width: 100px;
-  text-align: center;
-  /* background-color:inherit; */
-}
-
-h1, option {
-  text-align: center;
-}
-
-/* Remove all animations, transitions and smooth scroll for people that prefer not to see them */
-/* @media (prefers-reduced-motion: reduce) {
-  html:focus-within {
-    scroll-behavior: auto;
-  }
-} */
 
 .items {
   height: 100%;
 }
 
 .items__holder {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(max(40vw, 250px), 1fr));
   margin-bottom: calc(3vh + 90px);
-  /* max-height: 80vh;
-  overflow-y: auto; */
+}
+.list__item {
+  min-height: 40px;
+  margin-top: 3vh;
+  margin-left: 3vw;
+  margin-right: 3vw;
+  border: 1px solid var(--border__color);
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+   background-image: var(--card__image);
+  border-radius: 5px;
+  padding: 1vh;
+  cursor: pointer;
+}
+.list__item:hover{
+   background-image: var(--card__hover);
 }
 
-.modal {
+.pagination {
+  background-image: var(--bg__image);
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  min-height: 80px;
+  padding: 10px 0px;
+  border-top: 1px solid var(--border__color);
+}
+
+.pagination__numbers {
+  display: block;
+  border: 1px solid black;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.numbering__holder {
+  display: grid;
+  column-gap: 1vw;
+  justify-content: center;
+  grid-template-columns: 30px auto 30px;
+}
+
+.numbering {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 30px;
+
+  column-gap: 5px;
+  max-width: 170px;
+  overflow: hidden;
+  left: 50%;
+  position: relative;
+  transform: translateX(-50%);
+}
+
+.pagination__numbers:hover {
+  border: 1px solid var(--border__color);
+}
+
+.exzact__pagination {
+  background-color: var(--border__color);
+}
+
+.pagination__arrow {
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+}
+
+.view__select {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.add__button {
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+ /* MODAL */
+
+ .modal {
   width: 100%;
   height: 100vh;
   position: fixed;
@@ -450,102 +526,6 @@ h1, option {
   place-self: center start;
 }
 
-.list__item {
-  min-height: 40px;
-  margin-top: 3vh;
-  margin-left: 3vw;
-  margin-right: 3vw;
-  border: 1px solid var(--border__color);
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-   background-image: var(--card__image);
-  border-radius: 5px;
-  padding: 1vh;
-  cursor: pointer;
-}
-
-@media (max-width: 450px) {
-  .input__holder {
-    display: grid;
-    grid-auto-flow: row;
-    grid-template-columns: 1fr;
-  }
-
-  .header>h1 {
-    text-align: start;
-  }
-}
-
-.pagination {
-  background-image: var(--bg__image);
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  min-height: 80px;
-  padding: 10px 0px;
-  border-top: 1px solid var(--border__color);
-}
-
-.pagination__numbers {
-  display: block;
-  border: 1px solid black;
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
-  text-align: center;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.numbering__holder {
-  display: grid;
-  column-gap: 1vw;
-  justify-content: center;
-  grid-template-columns: 30px auto 30px;
-}
-
-.numbering {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 30px;
-
-  column-gap: 5px;
-  max-width: 170px;
-  overflow: hidden;
-  left: 50%;
-  position: relative;
-  transform: translateX(-50%);
-}
-
-.pagination__numbers:hover {
-  border: 1px solid var(--border__color);
-}
-
-.exzact__pagination {
-  background-color: var(--border__color);
-}
-
-.pagination__arrow {
-  cursor: pointer;
-  width: 30px;
-  height: 30px;
-}
-
-.view__select {
-  display: inline-block;
-  width: 100%;
-  text-align: center;
-  margin-top: 10px;
-}
-
-.add__button {
-  position: absolute;
-  bottom: 25px;
-  right: 25px;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-}
-
 .preloader {
   height: inherit;
   width: 100%;
@@ -565,21 +545,6 @@ h1, option {
   right: 5px;
 }
 
-.header {
-  z-index: 2;
-  position: sticky;
-  min-height: 60px;
-  /* background-color: rgb(255, 255, 255); */
-  box-shadow: 0px 5px 5px 0px #0000003b;
-  border-bottom: 1px solid var(--border__color);
-  top: 0px;
-  background-image: var(--bg__image);
-  padding: 5px;
-  /* border-radius: 5px; */
-  display: grid;
-  grid-auto-flow: column;
-}
-
 /* TRANSITIONS */
 .form-enter-active,
 .form-leave-active {
@@ -591,4 +556,16 @@ h1, option {
   opacity: 0;
 }
 
+
+@media (max-width: 450px) {
+  .input__holder {
+    display: grid;
+    grid-auto-flow: row;
+    grid-template-columns: 1fr;
+  }
+
+  .header>h1 {
+    text-align: start;
+  }
+}
 </style>
