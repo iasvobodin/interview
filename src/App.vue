@@ -12,24 +12,10 @@
       </div>
     </section>
     <section class="items__holder">
-      <div 
-        @click="changeItem(index)" 
-        :class="{ blured: loading }" 
-        class="list__item" 
-        v-for="(item, index) in items"
-        :key="item.id"
-        >
-        <div><b>Название: </b>{{ item.name }}</div>
-        <div><b>Описание: </b>{{ item.desc }}</div>
-        <div><b>Цена: $ </b>{{ item.price }}</div>
-        <div><b>Тип: </b>{{ item.type }}</div>
-      </div>
-    </section>
-    <!-- <ul role="list" class="items__holder">
-      <li 
-        @click="changeItem(index)" 
-        :class="{ blured: loading }" 
-        class="list__item" 
+      <div
+        @click="changeItem(index)"
+        :class="{ blured: loading }"
+        class="list__item"
         v-for="(item, index) in items"
         :key="item.id"
       >
@@ -37,8 +23,9 @@
         <div><b>Описание: </b>{{ item.desc }}</div>
         <div><b>Цена: $ </b>{{ item.price }}</div>
         <div><b>Тип: </b>{{ item.type }}</div>
-      </li>
-    </ul> -->
+        <!-- <div><b>indexs</b>{{ item.index }}</div> -->
+      </div>
+    </section>
     <transition name="form">
       <div v-if="loading" class="preloader">
         <pre-loader />
@@ -46,15 +33,30 @@
     </transition>
     <section class="pagination">
       <div class="numbering__holder">
-        <img @click="currentPageView--" style="transform: rotate(180deg);" class="pagination__arrow" src="/img/next.svg"
-          alt="next">
+        <img
+          @click="currentPageView--"
+          style="transform: rotate(180deg)"
+          class="pagination__arrow"
+          src="/img/next.svg"
+          alt="next"
+        />
         <div class="numbering">
-          <span :class="{ exzact__pagination: currentPage === n }" class="pagination__numbers" @click="selectPage(n)"
-            v-for="n in pagesQty" :key="n">
+          <span
+            :class="{ exzact__pagination: currentPage === n }"
+            class="pagination__numbers"
+            @click="selectPage(n)"
+            v-for="n in pagesQty"
+            :key="n"
+          >
             {{ n }}
           </span>
         </div>
-        <img @click="currentPageView++" class="pagination__arrow" src="/img/next.svg" alt="next">
+        <img
+          @click="currentPageView++"
+          class="pagination__arrow"
+          src="/img/next.svg"
+          alt="next"
+        />
       </div>
       <div class="view__select">
         Отображать по
@@ -63,25 +65,46 @@
         </select>
       </div>
       <div class="add__button">
-        <img @click="addClearState" src="/img/add.svg" alt="add">
+        <img @click="addClearState" src="/img/add.svg" alt="add" />
       </div>
     </section>
   </main>
   <transition name="form">
     <div v-if="modal" class="modal">
       <div @mousedown="outsideClick($event)" class="modal__additem">
-        <form @submit.prevent="addItem" id="addform" class="modal__form" action="">
+        <form
+          @submit.prevent="addItem"
+          id="addform"
+          class="modal__form"
+          action=""
+        >
           <div class="input__holder">
             <h3>Названиe</h3>
-            <input class="input" required v-model="vmodelItem.name" type="text" />
+            <input
+              class="input"
+              required
+              v-model="vmodelItem.name"
+              type="text"
+            />
           </div>
           <div class="input__holder">
             <h3>Описание</h3>
-            <textarea required v-model="vmodelItem.desc" name="" cols="30" rows="5"></textarea>
+            <textarea
+              required
+              v-model="vmodelItem.desc"
+              name=""
+              cols="30"
+              rows="5"
+            ></textarea>
           </div>
           <div class="input__holder">
             <h3>Цена</h3>
-            <input class="input" required v-model="vmodelItem.price" type="number" />
+            <input
+              class="input"
+              required
+              v-model="vmodelItem.price"
+              type="number"
+            />
           </div>
           <div class="input__holder">
             <h3>Тип</h3>
@@ -91,13 +114,28 @@
             </select>
           </div>
           <div class="input__button">
-            <button :disabled="loading" @click.prevent="delItem" class="form__add" v-if="vmodelItem.state === 'Update'">
+            <button
+              :disabled="loading"
+              @click.prevent="delItem"
+              class="form__add"
+              v-if="vmodelItem.state === 'Update'"
+            >
               Delete
             </button>
-            <input :disabled="loading" class="form__add" :value="vmodelItem.state" type="submit" />
+            <input
+              :disabled="loading"
+              class="form__add"
+              :value="vmodelItem.state"
+              type="submit"
+            />
           </div>
           <div class="modal__close">
-            <img class="modal__close__icon" @click="modal = false" src="/img/cancel.svg" alt="" />
+            <img
+              class="modal__close__icon"
+              @click="modal = false"
+              src="/img/cancel.svg"
+              alt=""
+            />
           </div>
         </form>
       </div>
@@ -109,7 +147,7 @@
 import { reactive, toRefs, ref, watch } from "vue";
 import { useFetch } from "@/hooks/fetch";
 import anime from "animejs";
-import preLoader from  "@/components/loader.vue";
+import preLoader from "@/components/loader.vue";
 export default {
   components: {
     preLoader,
@@ -140,7 +178,7 @@ export default {
     watch(displayQty, (newValue) => {
       getItems(0, newValue, filterType.value);
       state.pagesQty = Math.ceil(state.maxIndex / newValue);
-      state.pageViewQty = Math.ceil(state.pagesQty / 5) - 1
+      state.pageViewQty = Math.ceil(state.pagesQty / 5) - 1;
       state.currentPage = 1;
     });
 
@@ -151,26 +189,26 @@ export default {
     });
 
     watch(currentPageView, (newValue, oldValue) => {
-      let direction = newValue > oldValue ? 'normal' : 'reverse'
+      let direction = newValue > oldValue ? "normal" : "reverse";
 
       if (newValue < 0) {
-        currentPageView.value = 0
+        currentPageView.value = 0;
       }
       if (newValue > state.pageViewQty) {
-        currentPageView.value = state.pageViewQty
+        currentPageView.value = state.pageViewQty;
       }
 
       const pag = anime({
         targets: ".pagination__numbers",
         translateX: -175 * currentPageView.value,
-        easing: 'linear',
+        easing: "linear",
         autoplay: false,
         duration: 250,
         delay: anime.stagger(30, {
-          direction
-        })
-      })
-      pag.play()
+          direction,
+        }),
+      });
+      pag.play();
     });
 
     //DOOM EVENTS
@@ -207,41 +245,32 @@ export default {
 
     //GET QTY ELEMENTS
     const getCount = async () => {
-      const {
-        request,
-        response,
-        loading
-      } = useFetch(
+      const { request, response, loading } = useFetch(
         `/api/items?count=${filterType.value}`
       );
       await request();
       state.maxIndex = response.value;
-      !state.addIndex && (state.addIndex = response.value - 1);
+      // !state.addIndex && (state.addIndex = response.value - 1);
       state.pagesQty = Math.ceil(state.maxIndex / displayQty.value);
-      state.pageViewQty = Math.ceil(state.pagesQty / 5) - 1 //index start from 0
+      state.pageViewQty = Math.ceil(state.pagesQty / 5) - 1; //index start from 0
     };
     //READ ALL
     const getItems = async (offset, limit, fType) => {
-      const {
-        request,
-        response,
-        loading
-      } = useFetch(
+      const { request, response, loading } = useFetch(
         `/api/items?lim=${limit}&offset=${offset}&itemstype=${fType}`
       );
       state.loading = loading;
       await request();
+      state.loading = false;
       state.items = response;
+      !state.addIndex && (state.addIndex = response.value[0].index);
     };
 
     // CREATE UPDATE
     const addItem = async () => {
       state.modal = false;
       if (state.vmodelItem.state === "Add") {
-        const {
-          request,
-          loading
-        } = useFetch("/api/items?add=true", {
+        const { request, loading } = useFetch("/api/items?add=true", {
           method: "POST",
           body: JSON.stringify({
             index: ++state.addIndex,
@@ -252,15 +281,10 @@ export default {
         await request();
       }
       if (state.vmodelItem.state === "Update") {
-        const {
-          id,
-          type
-        } = state.updateItem;
-        const {
-          request,
-          loading
-        } = useFetch(
-          `/api/items?update=true&type=${type}&id=${id}`, {
+        const { id, type } = state.updateItem;
+        const { request, loading } = useFetch(
+          `/api/items?update=true&type=${type}&id=${id}`,
+          {
             method: "POST",
             body: JSON.stringify({
               ...state.vmodelItem,
@@ -282,14 +306,8 @@ export default {
     //DELETE
     const delItem = async () => {
       state.modal = false;
-      const {
-        id,
-        type
-      } = state.updateItem;
-      const {
-        request,
-        loading
-      } = useFetch(
+      const { id, type } = state.updateItem;
+      const { request, loading } = useFetch(
         `/api/items?delete=true&id=${id}&type=${type}`
       );
       state.loading = loading;
@@ -323,15 +341,81 @@ export default {
 </script>
 
 <style lang="css">
+/* A LOT OF GRADIENT */
+
 :root {
   --border__color: orange;
-  --card__hover:repeating-linear-gradient(135deg, rgba(255,168,0, 0.09) 0px, rgba(255,168,0, 0.09) 1px,transparent 1px, transparent 11px),repeating-linear-gradient(45deg, rgba(255,168,0, 0.09) 0px, rgba(255,168,0, 0.09) 1px,transparent 1px, transparent 11px),linear-gradient(90deg, hsl(183,0%,100%),hsl(183,0%,100%));
-  --card__image: repeating-linear-gradient(135deg, hsla(35,0%,71%,0.09) 0px, hsla(35,0%,71%,0.09) 1px,transparent 1px, transparent 11px),repeating-linear-gradient(45deg, hsla(35,0%,71%,0.09) 0px, hsla(35,0%,71%,0.09) 1px,transparent 1px, transparent 11px),linear-gradient(90deg, hsl(183,0%,100%),hsl(183,0%,100%));
+  --card__hover: repeating-linear-gradient(
+      135deg,
+      rgba(255, 168, 0, 0.09) 0px,
+      rgba(255, 168, 0, 0.09) 1px,
+      transparent 1px,
+      transparent 11px
+    ),
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 168, 0, 0.09) 0px,
+      rgba(255, 168, 0, 0.09) 1px,
+      transparent 1px,
+      transparent 11px
+    ),
+    linear-gradient(90deg, hsl(183, 0%, 100%), hsl(183, 0%, 100%));
+  --card__image: repeating-linear-gradient(
+      135deg,
+      hsla(35, 0%, 71%, 0.09) 0px,
+      hsla(35, 0%, 71%, 0.09) 1px,
+      transparent 1px,
+      transparent 11px
+    ),
+    repeating-linear-gradient(
+      45deg,
+      hsla(35, 0%, 71%, 0.09) 0px,
+      hsla(35, 0%, 71%, 0.09) 1px,
+      transparent 1px,
+      transparent 11px
+    ),
+    linear-gradient(90deg, hsl(183, 0%, 100%), hsl(183, 0%, 100%));
   --bg__color: rgb(128, 225, 255);
-  --bg__image: linear-gradient(135deg, rgba(244, 244, 244,0.07) 0%, rgba(244, 244, 244,0.07) 12.5%,rgba(211, 211, 211,0.07) 12.5%, rgba(211, 211, 211,0.07) 25%,rgba(178, 178, 178,0.07) 25%, rgba(178, 178, 178,0.07) 37.5%,rgba(145, 145, 145,0.07) 37.5%, rgba(145, 145, 145,0.07) 50%,rgba(113, 113, 113,0.07) 50%, rgba(113, 113, 113,0.07) 62.5%,rgba(80, 80, 80,0.07) 62.5%, rgba(80, 80, 80,0.07) 75%,rgba(47, 47, 47,0.07) 75%, rgba(47, 47, 47,0.07) 87.5%,rgba(14, 14, 14,0.07) 87.5%, rgba(14, 14, 14,0.07) 100%),linear-gradient(45deg, rgba(236, 236, 236,0.07) 0%, rgba(236, 236, 236,0.07) 12.5%,rgba(210, 210, 210,0.07) 12.5%, rgba(210, 210, 210,0.07) 25%,rgba(183, 183, 183,0.07) 25%, rgba(183, 183, 183,0.07) 37.5%,rgba(157, 157, 157,0.07) 37.5%, rgba(157, 157, 157,0.07) 50%,rgba(130, 130, 130,0.07) 50%, rgba(130, 130, 130,0.07) 62.5%,rgba(104, 104, 104,0.07) 62.5%, rgba(104, 104, 104,0.07) 75%,rgba(77, 77, 77,0.07) 75%, rgba(77, 77, 77,0.07) 87.5%,rgba(51, 51, 51,0.07) 87.5%, rgba(51, 51, 51,0.07) 100%),linear-gradient(90deg, #ffffff,#ffffff);
+  --bg__image: linear-gradient(
+      135deg,
+      rgba(244, 244, 244, 0.07) 0%,
+      rgba(244, 244, 244, 0.07) 12.5%,
+      rgba(211, 211, 211, 0.07) 12.5%,
+      rgba(211, 211, 211, 0.07) 25%,
+      rgba(178, 178, 178, 0.07) 25%,
+      rgba(178, 178, 178, 0.07) 37.5%,
+      rgba(145, 145, 145, 0.07) 37.5%,
+      rgba(145, 145, 145, 0.07) 50%,
+      rgba(113, 113, 113, 0.07) 50%,
+      rgba(113, 113, 113, 0.07) 62.5%,
+      rgba(80, 80, 80, 0.07) 62.5%,
+      rgba(80, 80, 80, 0.07) 75%,
+      rgba(47, 47, 47, 0.07) 75%,
+      rgba(47, 47, 47, 0.07) 87.5%,
+      rgba(14, 14, 14, 0.07) 87.5%,
+      rgba(14, 14, 14, 0.07) 100%
+    ),
+    linear-gradient(
+      45deg,
+      rgba(236, 236, 236, 0.07) 0%,
+      rgba(236, 236, 236, 0.07) 12.5%,
+      rgba(210, 210, 210, 0.07) 12.5%,
+      rgba(210, 210, 210, 0.07) 25%,
+      rgba(183, 183, 183, 0.07) 25%,
+      rgba(183, 183, 183, 0.07) 37.5%,
+      rgba(157, 157, 157, 0.07) 37.5%,
+      rgba(157, 157, 157, 0.07) 50%,
+      rgba(130, 130, 130, 0.07) 50%,
+      rgba(130, 130, 130, 0.07) 62.5%,
+      rgba(104, 104, 104, 0.07) 62.5%,
+      rgba(104, 104, 104, 0.07) 75%,
+      rgba(77, 77, 77, 0.07) 75%,
+      rgba(77, 77, 77, 0.07) 87.5%,
+      rgba(51, 51, 51, 0.07) 87.5%,
+      rgba(51, 51, 51, 0.07) 100%
+    ),
+    linear-gradient(90deg, #ffffff, #ffffff);
 }
-
-
 
 .header {
   z-index: 2;
@@ -352,22 +436,28 @@ export default {
 .items__holder {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(max(40vw, 250px), 1fr));
+  column-gap: 3vw;
+  row-gap: 3vw;
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
   margin-bottom: calc(3vh + 90px);
+  margin-top: 3vh;
 }
 .list__item {
   min-height: 40px;
-  margin-top: 3vh;
+  /* margin-top: 3vh;
   margin-left: 3vw;
-  margin-right: 3vw;
+  margin-right: 3vw; */
   border: 1px solid var(--border__color);
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-   background-image: var(--card__image);
+  background-image: var(--card__image);
   border-radius: 5px;
   padding: 1vh;
   cursor: pointer;
 }
-.list__item:hover{
-   background-image: var(--card__hover);
+.list__item:hover {
+  background-image: var(--card__hover);
 }
 
 .pagination {
@@ -441,9 +531,9 @@ export default {
   cursor: pointer;
 }
 
- /* MODAL */
+/* MODAL */
 
- .modal {
+.modal {
   width: 100%;
   height: 100vh;
   position: fixed;
@@ -518,7 +608,7 @@ export default {
   margin: 0;
 }
 
-.input__holder>h3 {
+.input__holder > h3 {
   place-self: center start;
 }
 
@@ -552,7 +642,6 @@ export default {
   opacity: 0;
 }
 
-
 @media (max-width: 450px) {
   .input__holder {
     display: grid;
@@ -560,7 +649,7 @@ export default {
     grid-template-columns: 1fr;
   }
 
-  .header>h1 {
+  .header > h1 {
     text-align: start;
   }
 }

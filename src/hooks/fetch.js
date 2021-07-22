@@ -15,7 +15,7 @@ export function useFetch(url, options) {
     } catch (error) {
       console.log(error);
     } finally {
-      loading.value = false;
+      // loading.value = false;
     }
   }
 
